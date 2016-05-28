@@ -1,13 +1,10 @@
 var bassDrumAudio;
 var snareDrumAudio;
 var highTomAudio;
-var bdLaufvar = 0;
-var sdLaufvar = 0;
-var htLaufvar = 0;
-var bassDrum = new Array(4);
-var snareDrum = new Array(4);
-var highTom = new Array(4);
-var takt = new Array(4);
+var playing = false;
+var sounds; 
+var taktDisplay;
+var takt = 0;
 
 
 window.onload = function init()
@@ -18,83 +15,111 @@ window.onload = function init()
 
 	var playBtn = document.getElementById("play");
 	playBtn.addEventListener("mouseup", playPressed);
+	document.getElementById("stop").addEventListener("mouseup", stopPressed);
 
 	// var playBtn = document.getElementById("stop");
 	// playBtn.addEventListener("mouseup", stopPressed);
 
 	// Setup Takt
-	takt[0] = document.getElementById("takt1");
-	takt[1] = document.getElementById("takt2");
-	takt[2] = document.getElementById("takt3");
-	takt[3] = document.getElementById("takt4");
+	//takt[0] = document.getElementById("takt1");
+	//takt[1] = document.getElementById("takt2");
+	//takt[2] = document.getElementById("takt3");
+	//takt[3] = document.getElementById("takt4");
 
+	//Initialize Sound Buttons
+	sounds =  new Array(8);
+	var i;
+	for (i = 0; i < sounds.length; i++){
+		sounds[i] = new Array(3);
+	}
+	var x = document.getElementsByClassName("Sound");
+	for (i = 0; i < x.length; i++) {
+		x[i].style.backgroundColor = "red";
+		x[i].addEventListener("mouseup", color);
+	
+		//create references
+		var classes = x[i].className.split(" ");
+		var type;
+		var point;
+		switch (classes[1]) {
+			case "BD" : type = 0;break;
+			case "SD" : type = 1;break;
+			case "HT" : type = 2;break;
+			default : alert("Error of Sound Type");
+		}
+		switch (classes[2]) {
+			case "t0" : point = 0;break;
+			case "t1" : point = 1;break;
+			case "t2" : point = 2;break;
+			case "t3" : point = 3;break;
+			case "t4" : point = 4;break;
+			case "t5" : point = 5;break;
+			case "t6" : point = 6;break;
+			case "t7" : point = 7;break;
+			default : alert("Error of Sound Time"); console.log(classes);
+		}
+		sounds[point][type] = x[i];
+	}
+	
+	//Initialize Takt
+	taktDisplay = new Array(8);
+	x = document.getElementsByClassName("Takt");
+	for (i = 0; i < x.length; i++) {
+	var classes = x[i].className.split(" ");
+	switch (classes[1]) {
+			case "t0" : point = 0;break;
+			case "t1" : point = 1;break;
+			case "t2" : point = 2;break;
+			case "t3" : point = 3;break;
+			case "t4" : point = 4;break;
+			case "t5" : point = 5;break;
+			case "t6" : point = 6;break;
+			case "t7" : point = 7;break;
+			default : alert("Error in Takt Time"); console.log(classes);
+		}
+		taktDisplay[point] = x[i];
+	}
+	console.log(taktDisplay);
+	
+	//Start
+	setInterval(play, 500);	
+}
 
-	// Setup Bass Drum
-	bassDrum[0] = document.getElementById("bd1");
-	bassDrum[0].style.backgroundColor='Red';
-	bassDrum[0].addEventListener("mouseup", color);
-
-	bassDrum[1] = document.getElementById("bd2");
-	bassDrum[1].style.backgroundColor='Red';
-	bassDrum[1].addEventListener("mouseup", color);
-
-	bassDrum[2] = document.getElementById("bd3");
-	bassDrum[2].style.backgroundColor='Red';
-	bassDrum[2].addEventListener("mouseup", color);
-
-	bassDrum[3] = document.getElementById("bd4");
-	bassDrum[3].style.backgroundColor='Red';
-	bassDrum[3].addEventListener("mouseup", color);
-
-	// Setup Snare Drum
-	snareDrum[0] = document.getElementById("sd1");
-	snareDrum[0].style.backgroundColor='Red';
-	snareDrum[0].addEventListener("mouseup", color);
-
-	snareDrum[1] = document.getElementById("sd2");
-	snareDrum[1].style.backgroundColor='Red';
-	snareDrum[1].addEventListener("mouseup", color);
-
-	snareDrum[2] = document.getElementById("sd3");
-	snareDrum[2].style.backgroundColor='Red';
-	snareDrum[2].addEventListener("mouseup", color);
-
-	snareDrum[3] = document.getElementById("sd4");
-	snareDrum[3].style.backgroundColor='Red';
-	snareDrum[3].addEventListener("mouseup", color);
-
-	// Setup High Tom
-	highTom[0] = document.getElementById("ht1");
-	highTom[0].style.backgroundColor='Red';
-	highTom[0].addEventListener("mouseup", color);
-
-	highTom[1] = document.getElementById("ht2");
-	highTom[1].style.backgroundColor='Red';
-	highTom[1].addEventListener("mouseup", color);
-
-	highTom[2] = document.getElementById("ht3");
-	highTom[2].style.backgroundColor='Red';
-	highTom[2].addEventListener("mouseup", color);
-
-	highTom[3] = document.getElementById("ht4");
-	highTom[3].style.backgroundColor='Red';
-	highTom[3].addEventListener("mouseup", color);
-
+function play() {
+	if (playing) {
+		playTakt();
+		if (sounds[takt][0].style.backgroundColor == 'blue') {
+			bassDrumAudio.play();
+		}
+		if (sounds[takt][1].style.backgroundColor == 'blue') {
+			snareDrumAudio.play();
+		}	
+		if (sounds[takt][2].style.backgroundColor == 'blue') {
+			highTomAudio.play();
+		}			
+		if (takt > 6) {
+		takt = 0;
+		}
+		else {
+		takt++;
+		};
+	}
 }
 
 function playPressed()
 {
-	// setInterval(takt, 1000);
-	setInterval(bdPlay, 1000);
-	setInterval(sdPlay, 1000);
-	setInterval(htPlay, 1000);
+	playing = true;
 }
-/*
+
 function stopPressed() 
 {
-	
+	if(!playing){ 
+	taktDisplay[takt-1].innerHTML = "o";
+	takt = 0;
+	taktDisplay[takt].innerHTML = "i";
+	};
+	playing = false;
 }
-*/
 
 function color(event)
 {
@@ -106,75 +131,23 @@ function color(event)
 	else
 	{
 		this.style.backgroundColor='Red';
+		this.innerHTML="0";
 	}
 }
 
-/*
-function takt()
+
+function playTakt()
 {
-	if (bdLaufvar==0) 
+	if (takt==0) 
 	{
-		takt[3].innerHTML="o";
-		takt[bdLaufvar].innerHTML="i";
+		taktDisplay[7].innerHTML="o";
+		taktDisplay[0].innerHTML="i";
 	}
 	else
 	{
-		takt[bdLaufvar-1].innerHTML="o";
-		takt[bdLaufvar].innerHTML="i";
-	}
-}
-*/
-function bdPlay()
-{
-	if(bassDrum[bdLaufvar].style.backgroundColor==='blue')
-	{
-		bassDrumAudio.play();
-		console.log(bdLaufvar);
-	}
-
-	if (bdLaufvar > 2)
-	{
-		bdLaufvar = 0;
-	}
-	else
-	{
-		bdLaufvar++;
+		taktDisplay[takt-1].innerHTML="o";
+		taktDisplay[takt].innerHTML="i";
 	}
 }
 
-function sdPlay()
-{
-	if(snareDrum[sdLaufvar].style.backgroundColor==='blue')
-	{
-		snareDrumAudio.play();
-		console.log(sdLaufvar);
-	}
-
-	if (sdLaufvar > 2)
-	{
-		sdLaufvar = 0;
-	}
-	else
-	{
-		sdLaufvar++;
-	}
-}
-
-function htPlay()
-{
-	if(highTom[htLaufvar].style.backgroundColor==='blue')
-	{
-		highTomAudio.play();
-		console.log(htLaufvar);
-	}
-
-	if (htLaufvar > 2)
-	{
-		htLaufvar = 0;
-	}
-	else
-	{
-		htLaufvar++;
-	}
-}
 
